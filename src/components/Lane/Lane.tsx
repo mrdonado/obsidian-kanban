@@ -150,6 +150,7 @@ function DraggableLaneRaw({
           },
         ])}
         style={laneStyles}
+        data-title={lane.data.title}
       >
         <div
           data-count={lane.children.length}
