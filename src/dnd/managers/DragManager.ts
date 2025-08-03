@@ -399,18 +399,22 @@ export function useDragHandle(
           win.addEventListener('touchmove', cancelEvent, {
             passive: false,
           });
-        }, 500);
+        }, 600); // Increased from 500ms to 600ms for better mobile control
       }
 
       const onMove = rafThrottle(win, (e: PointerEvent) => {
         if (e.pointerId !== pointerId) return;
+
+        // Use higher threshold for touch devices to reduce sensitivity
+        const moveThreshold = isTouchEvent ? 10 : 5;
+
         if (isTouchEvent) {
           if (!isDragging) {
             if (
               distanceBetween(initialPosition, {
                 x: e.pageX,
                 y: e.pageY,
-              }) > 5
+              }) > moveThreshold
             ) {
               win.clearTimeout(longPressTimeout);
               win.removeEventListener('touchmove', cancelEvent);
@@ -428,7 +432,7 @@ export function useDragHandle(
               distanceBetween(initialPosition, {
                 x: e.pageX,
                 y: e.pageY,
-              }) > 5
+              }) > moveThreshold
             ) {
               dndManager.dragManager.dragStart(initialEvent, droppable);
               isDragging = true;

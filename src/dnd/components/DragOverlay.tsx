@@ -1,3 +1,4 @@
+import { Platform } from 'obsidian';
 import { JSX } from 'preact';
 import { CSSProperties, createPortal, useContext, useEffect, useState } from 'preact/compat';
 
@@ -85,6 +86,7 @@ export function DragOverlay({ children }: DragOverlayProps) {
         const dropDuration = getDropDuration({
           position: dragPosition,
           destination: dropDestination,
+          isMobile: Platform.isMobile,
         });
 
         const transition = transitions.drop(dropDuration);
@@ -145,6 +147,7 @@ export function useIsAnythingDragging() {
       const dropDuration = getDropDuration({
         position: dragPosition || dropDestination,
         destination: dropDestination,
+        isMobile: Platform.isMobile,
       });
 
       activeWindow.setTimeout(() => setIsDragging(false), dropDuration);

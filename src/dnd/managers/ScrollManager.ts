@@ -1,3 +1,4 @@
+import { Platform } from 'obsidian';
 import { generateInstanceId } from 'src/components/helpers';
 
 import {
@@ -23,7 +24,7 @@ export type IntersectionObserverHandler = (entry: IntersectionObserverEntry) => 
 
 export const scrollContainerEntityType = 'scroll-container';
 
-const scrollStrengthModifier = 8;
+const scrollStrengthModifier = Platform.isMobile ? 2 : 8; // Slower scrolling on mobile
 
 const sides: Side[] = ['top', 'right', 'bottom', 'left'];
 

@@ -1,3 +1,4 @@
+import { Platform } from 'obsidian';
 import { generateInstanceId } from 'src/components/helpers';
 
 import { Axis, Entity } from '../types';
@@ -187,6 +188,7 @@ export class SortManager {
             x: dropHitbox[0],
             y: dropHitbox[1],
           },
+          isMobile: Platform.isMobile,
         });
 
         return this.dndManager.win.setTimeout(() => {
@@ -212,6 +214,7 @@ export class SortManager {
               x: dropHitbox[0],
               y: dropHitbox[1],
             },
+            isMobile: Platform.isMobile,
           });
 
     this.dragEndTimeout = win.setTimeout(() => {

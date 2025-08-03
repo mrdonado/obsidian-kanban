@@ -58,6 +58,11 @@ export const timings = {
   outOfTheWay: 200,
   minDropTime: 330,
   maxDropTime: 550,
+  // Mobile-specific timings for slower animations
+  mobile: {
+    minDropTime: 700,
+    maxDropTime: 1000,
+  },
 };
 
 const outOfTheWayTiming: string = `${timings.outOfTheWay}ms ${curves.outOfTheWay}`;
@@ -91,6 +96,7 @@ export const transforms = {
 };
 
 const dropTimeRange: number = timings.maxDropTime - timings.minDropTime;
+const mobileDropTimeRange: number = timings.mobile.maxDropTime - timings.mobile.minDropTime;
 const maxDropTimeAtDistance: number = 1500;
 // will bring a time lower - which makes it faster
 const cancelDropModifier: number = 0.6;
@@ -99,29 +105,37 @@ export function getDropDuration({
   position,
   destination,
   isCancel,
+  isMobile,
 }: {
   position: Coordinates;
   destination: Coordinates;
   isCancel?: boolean;
+  isMobile?: boolean;
 }): number {
   const distance: number = distanceBetween(position, destination);
+
+  // Use mobile-specific timings if on mobile
+  const minDropTime = isMobile ? timings.mobile.minDropTime : timings.minDropTime;
+  const maxDropTime = isMobile ? timings.mobile.maxDropTime : timings.maxDropTime;
+  const dropTimeRange = isMobile ? mobileDropTimeRange : timings.maxDropTime - timings.minDropTime;
+
   // even if there is no distance to travel, we might still need to animate opacity
   if (distance <= 0) {
-    return timings.minDropTime;
+    return minDropTime;
   }
 
   if (distance >= maxDropTimeAtDistance) {
-    return timings.maxDropTime;
+    return maxDropTime;
   }
 
   // * range from:
-  // 0px = 0.33s
-  // 1500px and over = 0.55s
+  // 0px = 0.33s (0.5s on mobile)
+  // 1500px and over = 0.55s (0.8s on mobile)
   // * If reason === 'CANCEL' then speeding up the animation
   // * round to 2 decimal points
 
   const percentage: number = distance / maxDropTimeAtDistance;
-  const duration: number = timings.minDropTime + dropTimeRange * percentage;
+  const duration: number = minDropTime + dropTimeRange * percentage;
 
   const withDuration: number = isCancel ? duration * cancelDropModifier : duration;
 
