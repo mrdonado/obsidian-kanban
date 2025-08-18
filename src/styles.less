@@ -827,6 +827,24 @@ button.kanban-plugin__new-item-button {
   text-transform: uppercase;
 }
 
+.kanban-plugin__item-metadata-days-left {
+  font-weight: bold;
+  font-size: 10px;
+  margin-left: 4px;
+  padding: 1px 4px;
+  border-radius: 3px;
+
+  &.is-upcoming {
+    color: #22c55e;
+    background-color: rgba(34, 197, 94, 0.1);
+  }
+
+  &.is-overdue {
+    color: #ef4444;
+    background-color: rgba(239, 68, 68, 0.1);
+  }
+}
+
 .kanban-plugin__item-metadata a {
   text-decoration: none;
 }

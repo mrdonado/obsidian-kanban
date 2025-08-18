@@ -1,6 +1,6 @@
 import classcat from 'classcat';
 import { getLinkpath, moment } from 'obsidian';
-import { JSX, useMemo } from 'preact/compat';
+import { HTMLAttributes, JSX, useMemo } from 'preact/compat';
 import { StateManager } from 'src/StateManager';
 import { t } from 'src/lang/helpers';
 
@@ -29,6 +29,32 @@ export function getRelativeDate(date: moment.Moment, time: moment.Moment) {
   }
 
   return date.from(today);
+}
+
+export function getDaysUntilDate(date: moment.Moment): number {
+  const today = moment().startOf('day');
+  const targetDate = date.clone().startOf('day');
+  return targetDate.diff(today, 'days');
+}
+
+export function DaysLeftIndicator({ date }: { date: moment.Moment }) {
+  const daysLeft = getDaysUntilDate(date);
+
+  if (daysLeft === 0) {
+    return null; // Don't show indicator for today
+  }
+
+  const isOverdue = daysLeft < 0;
+  const absoluteDays = Math.abs(daysLeft);
+  const sign = isOverdue ? '-' : '+';
+  const colorClass = isOverdue ? 'is-overdue' : 'is-upcoming';
+
+  return (
+    <span className={`${c('item-metadata-days-left')} ${colorClass}`}>
+      {sign}
+      {absoluteDays}
+    </span>
+  );
 }
 
 interface DateProps {
@@ -135,7 +161,8 @@ export function DateAndTime({
             className={`${c('item-metadata-date')} ${!shouldLinkDate ? 'is-button' : ''}`}
           >
             {date}
-          </span>{' '}
+          </span>
+          <DaysLeftIndicator date={targetDate} />{' '}
         </>
       )}
       {hasTime && (
