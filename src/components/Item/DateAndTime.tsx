@@ -44,7 +44,7 @@ export function DaysLeftIndicator({ date }: { date: moment.Moment }) {
     return null; // Don't show indicator for today
   }
 
-  const isOverdue = daysLeft < 0;
+  const isOverdue = daysLeft <= 0;
   const absoluteDays = Math.abs(daysLeft);
   const sign = isOverdue ? '-' : '+';
   const colorClass = isOverdue ? 'is-overdue' : 'is-upcoming';
@@ -101,6 +101,10 @@ export function DateAndTime({
     return getDateColor(targetDate);
   }, [targetDate, getDateColor]);
 
+  // Mark overdue including zero days left (today)
+  const daysLeft = useMemo(() => (targetDate ? getDaysUntilDate(targetDate) : null), [targetDate]);
+  const isOverdue = daysLeft !== null && daysLeft <= 0;
+
   if (!moveDates || !targetDate) return null;
 
   const dateStr = targetDate.format(dateFormat);
@@ -151,6 +155,7 @@ export function DateAndTime({
         c('date'),
         {
           'has-background': !!dateColor?.backgroundColor,
+          'is-overdue': isOverdue,
         },
       ])}
     >

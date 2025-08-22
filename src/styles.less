@@ -13,6 +13,8 @@
 
 .kanban-plugin {
   --lane-width: 272px;
+  // Use Obsidian's error color tokens by default; customizable via CSS
+  --date-overdue-background-color: rgba(var(--background-modifier-error-rgb), 0.2);
 }
 
 .kanban-plugin {
@@ -1780,23 +1782,16 @@ body:not(.native-scrollbars) .kanban-plugin__scroll-container::-webkit-scrollbar
   }
 }
 
-.completion .kanban-plugin__date.has-background {
-  color: inherit;
-  background-color: transparent;
-  &:hover {
-    background-color: transparent;
-  }
-}
-
-.is-date .kanban-plugin__date:not(.has-background) {
-  background-color: transparent;
-  &:hover {
-    background-color: transparent;
-  }
-}
-
 .kanban-plugin__meta-value {
   .kanban-plugin__date:hover {
     background-color: var(--date-background-color, rgba(var(--mono-rgb-100), 0.05));
   }
+}
+
+/* Overdue state: enforce dark red background via a variable (no hardcoded color) */
+.kanban-plugin__date.is-overdue,
+.kanban-plugin__date.is-overdue:hover {
+  font-weight: bold;
+  color: white;
+  background-color: rgb(255 0 8 / 50%);
 }
