@@ -227,6 +227,7 @@ const en = {
   'Edit time': 'Edit time',
   'Add time': 'Add time',
   'Remove time': 'Remove time',
+  'Remove tag': 'Remove tag',
   'Duplicate card': 'Duplicate card',
   'Split card': 'Split card',
   'Copy link to card': 'Copy link to card',

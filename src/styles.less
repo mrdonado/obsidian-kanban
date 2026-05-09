@@ -894,6 +894,78 @@ button.kanban-plugin__new-item-button {
   color: var(--text-normal);
 }
 
+.kanban-plugin__item-tag-wrapper {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+}
+
+.kanban-plugin__item-remove-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  margin-inline-start: 2px;
+  border-radius: 50%;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  color: var(--text-muted);
+  transition: opacity 0.1s, color 0.1s, background-color 0.1s;
+
+  &:hover {
+    color: var(--text-normal);
+    background-color: var(--background-modifier-error);
+    color: var(--text-on-accent);
+    opacity: 1 !important;
+  }
+}
+
+.kanban-plugin__item-metadata-date-wrapper:hover .kanban-plugin__item-remove-button,
+.kanban-plugin__item-tag-wrapper:hover .kanban-plugin__item-remove-button {
+  opacity: 0.6;
+}
+
+.kanban-plugin__item-remove-confirm {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-inline-start: 4px;
+}
+
+.kanban-plugin__item-remove-confirm-btn,
+.kanban-plugin__item-remove-cancel-btn {
+  padding: 1px 6px;
+  border-radius: var(--radius-s);
+  font-size: 11px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  line-height: 1.4;
+}
+
+.kanban-plugin__item-remove-confirm-btn {
+  background-color: var(--background-modifier-error);
+  color: var(--text-on-accent);
+  border-color: var(--background-modifier-error);
+
+  &:hover {
+    filter: brightness(1.1);
+  }
+}
+
+.kanban-plugin__item-remove-cancel-btn {
+  background-color: var(--background-secondary);
+  color: var(--text-muted);
+  border-color: var(--background-modifier-border);
+
+  &:hover {
+    color: var(--text-normal);
+    background-color: var(--background-modifier-hover);
+  }
+}
+
 .kanban-plugin__meta-table {
   width: 100%;
   margin: 0;

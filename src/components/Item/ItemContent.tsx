@@ -8,10 +8,12 @@ import {
   useEffect,
   useMemo,
   useRef,
+  useState,
 } from 'preact/hooks';
 import { StateManager } from 'src/StateManager';
 import { useNestedEntityPath } from 'src/dnd/components/Droppable';
 import { Path } from 'src/dnd/types';
+import { t } from 'src/lang/helpers';
 import { getTaskStatusDone, toggleTaskString } from 'src/parsers/helpers/inlineMetadata';
 
 import { MarkdownEditor, allowNewLine } from '../Editor/MarkdownEditor';
@@ -20,7 +22,7 @@ import {
   MarkdownRenderer,
 } from '../MarkdownRenderer/MarkdownRenderer';
 import { KanbanContext, SearchContext } from '../context';
-import { c, useGetDateColorFn, useGetTagColorFn } from '../helpers';
+import { c, escapeRegExpStr, useGetDateColorFn, useGetTagColorFn } from '../helpers';
 import { EditState, EditingState, Item, isEditing } from '../types';
 import { DateAndTime, RelativeDate } from './DateAndTime';
 import { InlineMetadata } from './InlineMetadata';
@@ -68,9 +70,33 @@ export function useDatePickers(item: Item, explicitPath?: Path) {
       );
     };
 
+    const onRemoveDate = () => {
+      const shouldLinkDates = stateManager.getSetting('link-date-to-daily-note');
+      const dateTrigger = stateManager.getSetting('date-trigger');
+      const contentMatch = shouldLinkDates
+        ? '(?:\\[[^\\]]+\\]\\([^\\)]+\\)|\\[\\[[^\\]]+\\]\\])'
+        : '{[^}]+}';
+      const dateRegEx = new RegExp(
+        `(^|\\s)${escapeRegExpStr(dateTrigger as string)}${contentMatch}`
+      );
+      const titleRaw = item.data.titleRaw.replace(dateRegEx, '').trim();
+      boardModifiers.updateItem(path, stateManager.updateItemContent(item, titleRaw));
+    };
+
+    const onRemoveTime = () => {
+      const timeTrigger = stateManager.getSetting('time-trigger');
+      const timeRegEx = new RegExp(
+        `(^|\\s)${escapeRegExpStr(timeTrigger as string)}{([^}]+)}`
+      );
+      const titleRaw = item.data.titleRaw.replace(timeRegEx, '').trim();
+      boardModifiers.updateItem(path, stateManager.updateItemContent(item, titleRaw));
+    };
+
     return {
       onEditDate,
       onEditTime,
+      onRemoveDate,
+      onRemoveTime,
     };
   }, [boardModifiers, path, item, stateManager]);
 }
@@ -127,15 +153,18 @@ export function Tags({
   tags,
   searchQuery,
   alwaysShow,
+  onRemoveTag,
 }: {
   tags?: string[];
   searchQuery?: string;
   alwaysShow?: boolean;
+  onRemoveTag?: (tag: string) => void;
 }) {
   const { stateManager } = useContext(KanbanContext);
   const getTagColor = useGetTagColorFn(stateManager);
   const search = useContext(SearchContext);
   const shouldShow = stateManager.useSetting('move-tags') || alwaysShow;
+  const [pendingRemoveTag, setPendingRemoveTag] = useState<string | null>(null);
 
   if (!tags.length || !shouldShow) return null;
 
@@ -145,35 +174,76 @@ export function Tags({
         const tagColor = getTagColor(tag);
 
         return (
-          <a
-            href={tag}
-            onClick={(e) => {
-              e.preventDefault();
-
-              const tagAction = stateManager.getSetting('tag-action');
-              if (search && tagAction === 'kanban') {
-                search.search(tag, true);
-                return;
-              }
-
-              (stateManager.app as any).internalPlugins
-                .getPluginById('global-search')
-                .instance.openGlobalSearch(`tag:${tag}`);
-            }}
+          <span
             key={i}
-            className={`tag ${c('item-tag')} ${
-              searchQuery && tag.toLocaleLowerCase().contains(searchQuery) ? 'is-search-match' : ''
-            }`}
-            style={
-              tagColor && {
-                '--tag-color': tagColor.color,
-                '--tag-background': tagColor.backgroundColor,
-              }
-            }
+            className={c('item-tag-wrapper')}
           >
-            <span>{tag[0]}</span>
-            {tag.slice(1)}
-          </a>
+            <a
+              href={tag}
+              onClick={(e) => {
+                e.preventDefault();
+
+                const tagAction = stateManager.getSetting('tag-action');
+                if (search && tagAction === 'kanban') {
+                  search.search(tag, true);
+                  return;
+                }
+
+                (stateManager.app as any).internalPlugins
+                  .getPluginById('global-search')
+                  .instance.openGlobalSearch(`tag:${tag}`);
+              }}
+              className={`tag ${c('item-tag')} ${searchQuery && tag.toLocaleLowerCase().contains(searchQuery)
+                  ? 'is-search-match'
+                  : ''
+                }`}
+              style={
+                tagColor && {
+                  '--tag-color': tagColor.color,
+                  '--tag-background': tagColor.backgroundColor,
+                }
+              }
+            >
+              <span>{tag[0]}</span>
+              {tag.slice(1)}
+            </a>
+            {onRemoveTag && pendingRemoveTag !== tag && (
+              <span
+                className={c('item-remove-button')}
+                aria-label={t('Remove tag')}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  setPendingRemoveTag(tag);
+                }}
+              >
+                ×
+              </span>
+            )}
+            {onRemoveTag && pendingRemoveTag === tag && (
+              <span className={c('item-remove-confirm')}>
+                <button
+                  className={c('item-remove-confirm-btn')}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setPendingRemoveTag(null);
+                    onRemoveTag(tag);
+                  }}
+                >
+                  {t('Remove tag')}
+                </button>
+                <button
+                  className={c('item-remove-cancel-btn')}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setPendingRemoveTag(null);
+                  }}
+                >
+                  {t('Cancel')}
+                </button>
+              </span>
+            )}
+          </span>
         );
       })}
     </div>
@@ -204,7 +274,18 @@ export const ItemContent = memo(function ItemContent({
   }, [editState, stateManager, item]);
 
   const path = useNestedEntityPath();
-  const { onEditDate, onEditTime } = useDatePickers(item);
+  const { onEditDate, onEditTime, onRemoveDate, onRemoveTime } = useDatePickers(item);
+
+  const onRemoveTag = useCallback(
+    (tag: string) => {
+      const tagRegEx = new RegExp(
+        `(^|\\s)${escapeRegExpStr(tag)}(?=[\\s,]|$)`
+      );
+      const titleRaw = item.data.titleRaw.replace(tagRegEx, '').trim();
+      boardModifiers.updateItem(path, stateManager.updateItemContent(item, titleRaw));
+    },
+    [path, boardModifiers, stateManager, item]
+  );
   const onEnter = useCallback(
     (cm: EditorView, mod: boolean, shift: boolean) => {
       if (!allowNewLine(stateManager, mod, shift)) {
@@ -301,9 +382,15 @@ export const ItemContent = memo(function ItemContent({
             stateManager={stateManager}
             filePath={filePath}
             getDateColor={getDateColor}
+            onRemoveDate={onRemoveDate}
+            onRemoveTime={onRemoveTime}
           />
           <InlineMetadata item={item} stateManager={stateManager} />
-          <Tags tags={item.data.metadata.tags} searchQuery={searchQuery} />
+          <Tags
+            tags={item.data.metadata.tags}
+            searchQuery={searchQuery}
+            onRemoveTag={onRemoveTag}
+          />
         </div>
       )}
     </div>

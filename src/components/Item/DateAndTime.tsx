@@ -1,6 +1,6 @@
 import classcat from 'classcat';
 import { getLinkpath, moment } from 'obsidian';
-import { HTMLAttributes, JSX, useMemo } from 'preact/compat';
+import { HTMLAttributes, JSX, useMemo, useState } from 'preact/compat';
 import { StateManager } from 'src/StateManager';
 import { t } from 'src/lang/helpers';
 
@@ -77,6 +77,8 @@ export function RelativeDate({ item, stateManager }: DateProps) {
 interface DateAndTimeProps {
   onEditDate?: JSX.MouseEventHandler<HTMLSpanElement>;
   onEditTime?: JSX.MouseEventHandler<HTMLSpanElement>;
+  onRemoveDate?: () => void;
+  onRemoveTime?: () => void;
   filePath: string;
   getDateColor: (date: moment.Moment) => DateColor;
 }
@@ -87,6 +89,8 @@ export function DateAndTime({
   filePath,
   onEditDate,
   onEditTime,
+  onRemoveDate,
+  onRemoveTime,
   getDateColor,
 }: DateProps & DateAndTimeProps) {
   const moveDates = stateManager.useSetting('move-dates');
@@ -94,6 +98,8 @@ export function DateAndTime({
   const timeFormat = stateManager.useSetting('time-format');
   const dateDisplayFormat = stateManager.useSetting('date-display-format');
   const shouldLinkDate = stateManager.useSetting('link-date-to-daily-note');
+
+  const [pendingRemove, setPendingRemove] = useState<'date' | 'time' | null>(null);
 
   const targetDate = item.data.metadata.time ?? item.data.metadata.date;
   const dateColor = useMemo(() => {
@@ -168,16 +174,88 @@ export function DateAndTime({
             {date}
           </span>
           <DaysLeftIndicator date={targetDate} />{' '}
+          {onRemoveDate && pendingRemove !== 'date' && (
+            <span
+              className={c('item-remove-button')}
+              aria-label={t('Remove date')}
+              onClick={(e) => {
+                e.stopPropagation();
+                setPendingRemove('date');
+              }}
+            >
+              ×
+            </span>
+          )}
+          {onRemoveDate && pendingRemove === 'date' && (
+            <span className={c('item-remove-confirm')}>
+              <button
+                className={c('item-remove-confirm-btn')}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setPendingRemove(null);
+                  onRemoveDate();
+                }}
+              >
+                {t('Remove date')}
+              </button>
+              <button
+                className={c('item-remove-cancel-btn')}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setPendingRemove(null);
+                }}
+              >
+                {t('Cancel')}
+              </button>
+            </span>
+          )}
         </>
       )}
       {hasTime && (
-        <span
-          onClick={onEditTime}
-          className={`${c('item-metadata-time')} is-button`}
-          aria-label={t('Change time')}
-        >
-          {timeDisplayStr}
-        </span>
+        <>
+          <span
+            onClick={onEditTime}
+            className={`${c('item-metadata-time')} is-button`}
+            aria-label={t('Change time')}
+          >
+            {timeDisplayStr}
+          </span>
+          {onRemoveTime && pendingRemove !== 'time' && (
+            <span
+              className={c('item-remove-button')}
+              aria-label={t('Remove time')}
+              onClick={(e) => {
+                e.stopPropagation();
+                setPendingRemove('time');
+              }}
+            >
+              ×
+            </span>
+          )}
+          {onRemoveTime && pendingRemove === 'time' && (
+            <span className={c('item-remove-confirm')}>
+              <button
+                className={c('item-remove-confirm-btn')}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setPendingRemove(null);
+                  onRemoveTime();
+                }}
+              >
+                {t('Remove time')}
+              </button>
+              <button
+                className={c('item-remove-cancel-btn')}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setPendingRemove(null);
+                }}
+              >
+                {t('Cancel')}
+              </button>
+            </span>
+          )}
+        </>
       )}
     </span>
   );
