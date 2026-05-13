@@ -4,6 +4,7 @@ import { HTMLAttributes, JSX, useMemo, useState } from 'preact/compat';
 import { StateManager } from 'src/StateManager';
 import { t } from 'src/lang/helpers';
 
+import { Icon } from '../Icon/Icon';
 import { c } from '../helpers';
 import { DateColor, Item } from '../types';
 
@@ -190,22 +191,24 @@ export function DateAndTime({
             <span className={c('item-remove-confirm')}>
               <button
                 className={c('item-remove-confirm-btn')}
+                aria-label={t('Remove date')}
                 onClick={(e) => {
                   e.stopPropagation();
                   setPendingRemove(null);
                   onRemoveDate();
                 }}
               >
-                {t('Remove date')}
+                <Icon name="lucide-check" />
               </button>
               <button
                 className={c('item-remove-cancel-btn')}
+                aria-label={t('Cancel')}
                 onClick={(e) => {
                   e.stopPropagation();
                   setPendingRemove(null);
                 }}
               >
-                {t('Cancel')}
+                <Icon name="lucide-x" />
               </button>
             </span>
           )}
@@ -236,22 +239,24 @@ export function DateAndTime({
             <span className={c('item-remove-confirm')}>
               <button
                 className={c('item-remove-confirm-btn')}
+                aria-label={t('Remove time')}
                 onClick={(e) => {
                   e.stopPropagation();
                   setPendingRemove(null);
                   onRemoveTime();
                 }}
               >
-                {t('Remove time')}
+                <Icon name="lucide-check" />
               </button>
               <button
                 className={c('item-remove-cancel-btn')}
+                aria-label={t('Cancel')}
                 onClick={(e) => {
                   e.stopPropagation();
                   setPendingRemove(null);
                 }}
               >
-                {t('Cancel')}
+                <Icon name="lucide-x" />
               </button>
             </span>
           )}

@@ -913,7 +913,10 @@ button.kanban-plugin__new-item-button {
   cursor: pointer;
   opacity: 0;
   color: var(--text-muted);
-  transition: opacity 0.1s, color 0.1s, background-color 0.1s;
+  transition:
+    opacity 0.1s,
+    color 0.1s,
+    background-color 0.1s;
 
   &:hover {
     color: var(--text-normal);
@@ -931,24 +934,38 @@ button.kanban-plugin__new-item-button {
 .kanban-plugin__item-remove-confirm {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  margin-inline-start: 4px;
+  gap: 2px;
+  margin-inline-start: 3px;
 }
 
 .kanban-plugin__item-remove-confirm-btn,
 .kanban-plugin__item-remove-cancel-btn {
-  padding: 1px 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
   border-radius: var(--radius-s);
-  font-size: 11px;
+  font-size: 10px;
   cursor: pointer;
-  border: 1px solid transparent;
-  line-height: 1.4;
+  border: none;
+  line-height: 1;
+
+  .kanban-plugin__icon {
+    width: 11px;
+    height: 11px;
+
+    svg {
+      width: 11px;
+      height: 11px;
+    }
+  }
 }
 
 .kanban-plugin__item-remove-confirm-btn {
   background-color: var(--background-modifier-error);
   color: var(--text-on-accent);
-  border-color: var(--background-modifier-error);
 
   &:hover {
     filter: brightness(1.1);
@@ -958,7 +975,6 @@ button.kanban-plugin__new-item-button {
 .kanban-plugin__item-remove-cancel-btn {
   background-color: var(--background-secondary);
   color: var(--text-muted);
-  border-color: var(--background-modifier-border);
 
   &:hover {
     color: var(--text-normal);

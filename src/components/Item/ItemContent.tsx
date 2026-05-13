@@ -22,6 +22,7 @@ import {
   MarkdownRenderer,
 } from '../MarkdownRenderer/MarkdownRenderer';
 import { KanbanContext, SearchContext } from '../context';
+import { Icon } from '../Icon/Icon';
 import { c, escapeRegExpStr, useGetDateColorFn, useGetTagColorFn } from '../helpers';
 import { EditState, EditingState, Item, isEditing } from '../types';
 import { DateAndTime, RelativeDate } from './DateAndTime';
@@ -194,8 +195,8 @@ export function Tags({
                   .instance.openGlobalSearch(`tag:${tag}`);
               }}
               className={`tag ${c('item-tag')} ${searchQuery && tag.toLocaleLowerCase().contains(searchQuery)
-                  ? 'is-search-match'
-                  : ''
+                ? 'is-search-match'
+                : ''
                 }`}
               style={
                 tagColor && {
@@ -224,22 +225,24 @@ export function Tags({
               <span className={c('item-remove-confirm')}>
                 <button
                   className={c('item-remove-confirm-btn')}
+                  aria-label={t('Remove tag')}
                   onClick={(e) => {
                     e.stopPropagation();
                     setPendingRemoveTag(null);
                     onRemoveTag(tag);
                   }}
                 >
-                  {t('Remove tag')}
+                  <Icon name="lucide-check" />
                 </button>
                 <button
                   className={c('item-remove-cancel-btn')}
+                  aria-label={t('Cancel')}
                   onClick={(e) => {
                     e.stopPropagation();
                     setPendingRemoveTag(null);
                   }}
                 >
-                  {t('Cancel')}
+                  <Icon name="lucide-x" />
                 </button>
               </span>
             )}
